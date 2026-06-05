@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Category } from './entities/category.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoryService {
+    constructor(
+        @InjectRepository(Category)
+        private categoryRepository: Repository<Category>,
+    ) {}
     
     fetchMany() {
         return 'some categoriesss';
@@ -11,12 +18,14 @@ export class CategoryService {
         return 'one category';
     }
 
-    create() {
-        return 'category created';
+    create(data: any) {
+
+        const category = this.categoryRepository.create(data);
+        return this.categoryRepository.save(category);
     }
 
     update() {
-        return 'category updated';
+        return 'category updatedss';
     }
 
     delete() {
