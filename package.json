@@ -8,8 +8,8 @@
   "scripts": {
     "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/data-source.js",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts",
-    "migration:generate": "npx ts-node ./node_modules/typeorm/cli.js migration:generate -d src/data-source.ts",
-    "migration:create": "npx ts-node ./node_modules/typeorm/cli.js migration:create",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/data-source.ts src/migrations/SchemaChanges",
+    "migration:create": "npx typeorm-ts-node-commonjs migration:create src/migrations/ManualMigration",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
