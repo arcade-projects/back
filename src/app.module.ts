@@ -2,10 +2,17 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
-import { CategoryModule } from './category/category.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { SubCategoryService } from './hot-potato/setting/sub_category/sub_category.service';
+import { SubCategoryController } from './hot-potato/setting/sub_category/sub_category.controller';
+import { HotPotatoController } from './hot-potato/hot-potato.controller';
+import { HotPotatoModule } from './hot-potato/hot-potato.module';
+import { CategoryModule } from './hot-potato/setting/category/category.module';
+import { SubCategoryModule } from './hot-potato/setting/sub_category/sub_category.module';
+import { RoomModule } from './hot-potato/setting/room/room.module';
+import { RoomPlayerModule } from './hot-potato/setting/room-player/room-player.module';
 
 @Module({
   imports: [
@@ -37,9 +44,13 @@ import { RedisModule } from '@nestjs-modules/ioredis';
           synchronize: configService.get<boolean>('DATABASE_SYNCHRONIZE'),
         }),
     }),
-    CategoryModule
+    RoomPlayerModule,
+    RoomModule,
+    CategoryModule,
+    SubCategoryModule,
+    HotPotatoModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
