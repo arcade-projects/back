@@ -25,7 +25,7 @@ services:
       - ../.env
     restart: always
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
       DATABASE_HOST: db
       DATABASE_PORT: 5432

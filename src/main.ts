@@ -5,6 +5,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const allowedOrigins = [
+    'http://localhost:3000',
     process.env.ORIGIN_PROD,
     process.env.ORIGIN_PROD_WWW,
     process.env.ORIGIN_STAGE,
@@ -17,6 +18,6 @@ async function bootstrap() {
     credentials: true,
   });
   
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
 }
 bootstrap();

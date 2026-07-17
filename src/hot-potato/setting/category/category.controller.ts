@@ -1,19 +1,18 @@
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
 
 @Controller('category')
 export class CategoryController {
-
     constructor(private readonly categoryService: CategoryService) {}
 
     @Get()
-    getAllCategories() {
-        return this.categoryService.fetchMany();
+    findMany() {
+        return this.categoryService.findMany();
     }
 
     @Get(':id')
-    getCategoryById() {
-        return this.categoryService.fetchOneById();
+    findById(@Param('id') id: string) {
+        return this.categoryService.findById(id);
     }
 
     @Post()
