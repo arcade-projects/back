@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'board_back',
+      name: 'arcade_back',
       script: 'dist/main.js',
       instances: 1,
       exec_mode: 'fork',
