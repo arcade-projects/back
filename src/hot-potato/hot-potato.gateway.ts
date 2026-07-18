@@ -1,9 +1,8 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { SubCategoryService } from './setting/sub_category/sub_category.service';
 import { RoomService } from './setting/room/room.service';
 import { clearInterval } from 'timers';
-import { Room } from './setting/room/entities/room.entity';
 import { RoomPlayerService } from './setting/room-player/room-player.service';
 
 @WebSocketGateway({
@@ -27,12 +26,11 @@ export class HotPotatoGateway {
   ) {}
 
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
-  @SubscribeMessage('messageToServer')
+  @SubscribeMessage('start')
   async handleMessage(@MessageBody() data: string) {
     
-
     this.room = await this.roomService.findById(data);
 
     const roomPlayers = await this.roomPlayerService.findByRoomId(this.room.id);
@@ -48,17 +46,28 @@ export class HotPotatoGateway {
         name: roomPlayer.player_name,
       };
     });
+    
+    const nextSubCategoryTitleObj = this.subCategoryTitles[this.currentSubCategoryIndex];
 
-    return {
-      players: this.players.map(player => player.name),
-      minutes: this.room.minutes,
-    };
+    const nextPlayerObj = this.players[this.currentPlayerIndex];
+
+    const nextPlayerId = nextPlayerObj.id;
+    const nextPlayerName = nextPlayerObj.name;
+
+    this.server.emit('start',
+      {
+        subCategoryTitle: nextSubCategoryTitleObj,
+        nextPlayerId: nextPlayerId,
+        nextPlayerName: nextPlayerName,
+        players: this.players.map(player => player.name),
+        minutes: this.room.minutes,
+      }
+    )
   }
-
 
   private timerInterval: NodeJS.Timeout | null = null;
 
-  @SubscribeMessage('startTimer')
+  @SubscribeMessage('timer')
   handleStartTimer() {
     
     if (this.timerInterval) {
@@ -90,15 +99,12 @@ export class HotPotatoGateway {
     
     this.currentSubCategoryIndex = (this.currentSubCategoryIndex + 1) % this.subCategoryTitles.length;
     const nextSubCategoryTitleObj = this.subCategoryTitles[this.currentSubCategoryIndex];
-    
+
     this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
     const nextPlayerObj = this.players[this.currentPlayerIndex];
 
     const nextPlayerId = nextPlayerObj.id;
     const nextPlayerName = nextPlayerObj.name;
-
-
-
 
     this.server.emit('updateTurn',
       {
