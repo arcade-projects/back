@@ -60,7 +60,7 @@ export class HotPotatoGateway {
         nextPlayerId: nextPlayerId,
         nextPlayerName: nextPlayerName,
         players: this.players.map(player => player.name),
-        minutes: this.room.minutes,
+        minutes: this.room.minutes * 60,
       }
     )
   }
@@ -90,8 +90,6 @@ export class HotPotatoGateway {
         this.server.emit('timerFinished', 'زمان به پایان رسید.');
       }
     }, 1000);
-
-    return { status: 'Time started'}
   }
 
   @SubscribeMessage('playerTurn')
