@@ -13,6 +13,11 @@ export class RoomController {
         return this.roomService.findById(id); 
     }
 
+    @Get('/pincode/:pincode')
+    getByPincode(@Param('pincode') pincode: string) {
+        return this.roomService.findByPincode(pincode); 
+    }
+
     @Post()
     async create(@Body() payload: {category_id: string, minutes: string}) {
 
