@@ -87,7 +87,9 @@ export class HotPotatoGateway {
           clearInterval(this.timerInterval);
           this.timerInterval = null;
         }
-        this.server.emit('timerFinished', 'زمان به پایان رسید.');
+        this.server.emit('finish', {
+          end: true
+        });
       }
     }, 1000);
   }
