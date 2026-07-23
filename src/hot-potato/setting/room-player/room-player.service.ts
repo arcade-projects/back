@@ -15,7 +15,12 @@ export class RoomPlayerService {
     ) {}
 
     async findByRoomId(roomId: string) {
-        return await this.roomPlayerRepository.findBy({ room_id: roomId });
+        return await this.roomPlayerRepository
+            .createQueryBuilder('rp')
+            .select('rp.id', 'id')
+            .addSelect('rp.player_name', 'name')
+            .where('rp.room_id = :roomId', {roomId})
+            .getRawMany();
     }
     
     async create(payload: any) {

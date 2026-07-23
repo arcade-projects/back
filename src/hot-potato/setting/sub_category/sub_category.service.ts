@@ -11,12 +11,18 @@ export class SubCategoryService {
         private readonly repository: Repository<SubCategory>
     ) {}
 
-    async findMany(category_id: string) {
-        return await this.repository.find({ where: { category_id } });
+    async findMany(categoryId: string) {
+        return await this.repository.find({ where: { category_id: categoryId } });
     }
 
-    async findByCategoryId(category_id: string) {
-        return await this.repository.find({ where: { category_id } });
+    async findByCategoryId(categoryId: string) {
+        const { titles } = await this.repository
+        .createQueryBuilder('sub')
+        .select("ARRAY_AGG(sub.title)", "titles")
+        .where('sub.category_id = :categoryId', { categoryId })
+        .getRawOne();
+
+        return titles;
     }
 
     async findById(id: string) {
