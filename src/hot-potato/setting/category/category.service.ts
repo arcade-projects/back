@@ -46,17 +46,16 @@ export class CategoryService {
         return category;
     }
 
-    create(data: any) {
-
+    async create(data: any) {
         const category = this.categoryRepository.create(data);
-        return this.categoryRepository.save(category);
+        return await this.categoryRepository.save(category);
     }
 
     update() {
         return 'category updatedss';
     }
 
-    delete() {
-        return 'category deleted';
+    async delete(id: string) {
+        return await this.categoryRepository.delete(id);
     }
 }

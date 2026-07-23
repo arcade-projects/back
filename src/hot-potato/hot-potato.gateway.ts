@@ -1,9 +1,18 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { SubCategoryService } from './setting/sub_category/sub_category.service';
 import { RoomService } from './setting/room/room.service';
-import { clearInterval } from 'timers';
 import { RoomPlayerService } from './setting/room-player/room-player.service';
+
+interface RoomState {
+  room: any;
+  roomPlayers: Array<{ id: string; name: string }>;
+  subCategoryTitles: string[];
+  currentSubCategoryIndex: number;
+  currentPlayerIndex: number;
+  timerInterval?: NodeJS.Timeout;
+  timeLeft: number;
+}
 
 @WebSocketGateway({
   cors: {
@@ -13,11 +22,7 @@ import { RoomPlayerService } from './setting/room-player/room-player.service';
 })
 export class HotPotatoGateway {
 
-  private room: any;
-  private players: any;
-  private subCategoryTitles: any;
-  private currentSubCategoryIndex: number = 0;
-  private currentPlayerIndex: number = 0;
+  private roomsState = new Map<string, RoomState>();
 
   constructor(
     private readonly subCategoryService: SubCategoryService,
@@ -28,96 +33,110 @@ export class HotPotatoGateway {
   @WebSocketServer()
   server!: Server;
 
-  @SubscribeMessage('start')
-  async handleMessage(@MessageBody() data: string) {
-    
-    this.room = await this.roomService.findById(data);
-
-    const roomPlayers = await this.roomPlayerService.findByRoomId(this.room.id);
-    const subCategories = await this.subCategoryService.findByCategoryId(this.room.category_id);
-
-    this.subCategoryTitles = subCategories.map((subCategory) => {
-      return subCategory.title;
-    });
-
-    this.players = roomPlayers.map((roomPlayer) => {
-      return {
-        id: roomPlayer.id,
-        name: roomPlayer.player_name,
-      };
-    });
-    
-    const nextSubCategoryTitleObj = this.subCategoryTitles[this.currentSubCategoryIndex];
-
-    const nextPlayerObj = this.players[this.currentPlayerIndex];
-
-    const nextPlayerId = nextPlayerObj.id;
-    const nextPlayerName = nextPlayerObj.name;
-
-    this.server.emit('start',
-      {
-        subCategoryTitle: nextSubCategoryTitleObj,
-        nextPlayerId: nextPlayerId,
-        nextPlayerName: nextPlayerName,
-        players: this.players.map(player => player.name),
-        minutes: this.room.minutes * 60,
-      }
-    )
+  // تابع کمکی برای تبدیل ثانیه به فرمت 00:00
+  private formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  private timerInterval: NodeJS.Timeout | null = null;
+  @SubscribeMessage('start')
+  async handleMessage(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
+    client.join(roomId);
 
-  @SubscribeMessage('timer')
-  handleStartTimer() {
-    
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
+    let state = this.roomsState.get(roomId);
+
+    if (!state) {
+      const room = await this.roomService.findById(roomId);
+      if (!room) return;
+
+      const roomPlayers = await this.roomPlayerService.findByRoomId(room.id);
+      if (!roomPlayers || roomPlayers.length === 0) return;
+
+      const subCategories = await this.subCategoryService.findByCategoryId(room.category_id);
+      const subCategoryTitles = subCategories.map((sc: any) => sc.title || sc);
+
+      state = {
+        room,
+        roomPlayers,
+        subCategoryTitles: subCategoryTitles.length > 0 ? subCategoryTitles : ['موضوع عمومی'],
+        currentSubCategoryIndex: 0,
+        currentPlayerIndex: 0,
+        timeLeft: (room.minutes || 1) * 60,
+      };
+
+      this.roomsState.set(roomId, state);
     }
 
-    let timeLeft = this.room.minutes * 60;
+    const nextPlayerObj = state.roomPlayers[state.currentPlayerIndex];
 
-    this.server.emit('timerUpdate', timeLeft);
-    this.timerInterval = setInterval(() => {
-      timeLeft--;
-      this.server.emit('timerUpdate', timeLeft);
+    client.emit('start', {
+      subCategoryTitle: state.subCategoryTitles[state.currentSubCategoryIndex],
+      nextPlayerId: nextPlayerObj.id,
+      nextPlayerName: nextPlayerObj.name,
+      players: state.roomPlayers.map(p => p.name),
+      formattedTime: this.formatTime(state.timeLeft),
+      totalTimeSeconds: state.room.minutes * 60
+    });
+  }
 
-      if (timeLeft <= 0) {
+  @SubscribeMessage('timer')
+  handleStartTimer(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
+    client.join(roomId);
+    const state = this.roomsState.get(roomId);
+    if (!state) return;
 
-        if (this.timerInterval) {
-          clearInterval(this.timerInterval);
-          this.timerInterval = null;
+    const totalSeconds = (state.room?.minutes || 1) * 60;
+
+    // ارسال تایمر فعلی به کاربری که تازه وصل شده
+    client.emit('timerUpdate', {
+      formattedTime: this.formatTime(state.timeLeft),
+      timeLeftSeconds: state.timeLeft,
+      totalTimeSeconds: totalSeconds,
+    });
+
+    if (state.timerInterval) return;
+
+    // شروع تایمر روم
+    state.timerInterval = setInterval(() => {
+      state.timeLeft--;
+      
+      this.server.to(roomId).emit('timerUpdate', {
+        formattedTime: this.formatTime(state.timeLeft),
+        timeLeftSeconds: state.timeLeft,
+        totalTimeSeconds: totalSeconds,
+      });
+      
+      if (state.timeLeft <= 0) {
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
         }
-        this.server.emit('finish', {
-          end: true
-        });
+        this.server.to(roomId).emit('finish', { end: true });
+        this.roomsState.delete(roomId);
       }
     }, 1000);
   }
 
   @SubscribeMessage('playerTurn')
-  handlePlayerTurn(@MessageBody() data: string) {
-    
-    this.currentSubCategoryIndex = (this.currentSubCategoryIndex + 1) % this.subCategoryTitles.length;
-    const nextSubCategoryTitleObj = this.subCategoryTitles[this.currentSubCategoryIndex];
+  handlePlayerTurn(@MessageBody() roomId: string) {
+    const state = this.roomsState.get(roomId);
+    if (!state) return { status: 'error', message: 'Room not started' };
 
-    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
-    const nextPlayerObj = this.players[this.currentPlayerIndex];
+    state.currentSubCategoryIndex = (state.currentSubCategoryIndex + 1) % state.subCategoryTitles.length;
+    state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.roomPlayers.length;
 
-    const nextPlayerId = nextPlayerObj.id;
-    const nextPlayerName = nextPlayerObj.name;
+    const nextPlayerObj = state.roomPlayers[state.currentPlayerIndex];
 
-    this.server.emit('updateTurn',
-      {
-        nextPlayerId: nextPlayerId,
-        nextPlayerName: nextPlayerName,
-        subCategoryTitle: nextSubCategoryTitleObj
-      }
-    )
+    this.server.to(roomId).emit('updateTurn', {
+      nextPlayerId: nextPlayerObj.id,
+      nextPlayerName: nextPlayerObj.name,
+      subCategoryTitle: state.subCategoryTitles[state.currentSubCategoryIndex]
+    });
 
     return {
       status: 'success',
-      currentPlayerIndex: this.currentPlayerIndex,
-      nextPlayerId: nextPlayerId
+      currentPlayerIndex: state.currentPlayerIndex,
+      nextPlayerId: nextPlayerObj.id
     };
   }
 }

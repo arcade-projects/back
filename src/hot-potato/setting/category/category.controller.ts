@@ -6,18 +6,19 @@ export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
 
     @Get()
-    findMany() {
+    async findMany() {
         return this.categoryService.findMany();
     }
 
     @Get(':id')
-    findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         return this.categoryService.findById(id);
     }
 
     @Post()
-    createCategory(@Body() data: any) {
-        return this.categoryService.create(data);
+    async createCategory(@Body() data: any) {
+        await this.categoryService.create(data);
+        return this.categoryService.findMany();
     }
 
     @Put(':id')
@@ -26,7 +27,8 @@ export class CategoryController {
     }
 
     @Delete(':id')
-    deleteCategory() {
-        return this.categoryService.delete();
+    async deleteCategory(@Param('id') id: string) {
+        await this.categoryService.delete(id);
+        return this.categoryService.findMany();
     }
 }
