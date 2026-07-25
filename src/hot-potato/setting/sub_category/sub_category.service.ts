@@ -34,4 +34,8 @@ export class SubCategoryService {
         const subCategory = this.repository.create(data);
         return this.repository.save(subCategory);
     }
+
+    async delete(id: string) {
+        return await this.repository.delete(id);
+    }
 }
