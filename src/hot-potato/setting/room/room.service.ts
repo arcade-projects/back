@@ -11,6 +11,17 @@ export class RoomService {
         private roomRepository: Repository<Room>,
     ) {}
 
+    async findMany() {
+        return await this.roomRepository.createQueryBuilder('r')
+            .select('r.id', 'id')
+            .select('r.pincode', 'pincode')
+            .addSelect('r.category_id', 'category_id')
+            .addSelect('r.minutes', 'minutes')
+            .addSelect('r.status', 'status')
+            .addSelect('r.activate', 'activate')
+            .getRawMany();
+    }
+
     findById(id: string) {
         return this.roomRepository.findOneBy({ id })
     }
@@ -20,12 +31,14 @@ export class RoomService {
     }
 
     create(payload: any) {
+
+        console.log(payload)
         const room = this.roomRepository.create({
             minutes: payload.minutes,
             category_id: payload.category_id,
             pincode: Math.floor(100000 + Math.random() * 900000).toString(),
-        }
-);
+        });
+        
         return this.roomRepository.save(room);
     }
 }
