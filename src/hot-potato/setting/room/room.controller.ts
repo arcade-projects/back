@@ -8,6 +8,11 @@ export class RoomController {
         private readonly roomService: RoomService
     ) {}
 
+    @Get()
+    findMany() {
+        return this.roomService.findMany();
+    }
+
     @Get('/:id')
     getById(@Param('id') id: string) {
         return this.roomService.findById(id); 
