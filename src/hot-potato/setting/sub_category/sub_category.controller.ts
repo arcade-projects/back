@@ -1,16 +1,16 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { SubCategoryService } from './sub_category.service';
 
-@Controller('sub-category')
+@Controller('category/:category_id/sub-category')
 export class SubCategoryController {
 
     constructor(
         private readonly subCategoryService: SubCategoryService
     ) {}
 
-    @Get(':category_id')
-    findMany(@Param('category_id') category_id: string) {
-        return this.subCategoryService.findMany(category_id);
+    @Get()
+    findMany(@Param('category_id') categoryId: string) {
+        return this.subCategoryService.findMany(categoryId);
     }
 
     @Get(':id')
@@ -19,9 +19,19 @@ export class SubCategoryController {
     }
 
     @Post()
-    create(@Body() data: any) {
-        return this.subCategoryService.create(data);
+    async create(@Body() data: any) {
+        await this.subCategoryService.create(data);
+        return this.subCategoryService.findMany(data.category_id);
     }
 
     update() {}
+
+    @Delete(':sub_category_id')
+    async delete(
+        @Param('category_id') categoryId: string,
+        @Param('sub_category_id') subCategoryId: string
+    ) {
+        await this.subCategoryService.delete(subCategoryId);
+        return this.subCategoryService.findMany(categoryId);
+    }
 }

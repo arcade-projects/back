@@ -16,7 +16,7 @@ export class CategoryController {
     }
 
     @Post()
-    async createCategory(@Body() data: any) {
+    async create(@Body() data: any) {
         await this.categoryService.create(data);
         return this.categoryService.findMany();
     }
@@ -27,7 +27,7 @@ export class CategoryController {
     }
 
     @Delete(':id')
-    async deleteCategory(@Param('id') id: string) {
+    async delete(@Param('id') id: string) {
         await this.categoryService.delete(id);
         return this.categoryService.findMany();
     }
