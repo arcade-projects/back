@@ -22,6 +22,9 @@ export class Room {
     @Column({ type: 'int', default: 60 })
     minutes!: number;
 
+    @Column({ type: 'varchar', length: 10, default: 'en' })
+    locale!: string;
+
     @Column({ type: 'varchar', default: RoomStatus.WAITING })
     status!: RoomStatus
 

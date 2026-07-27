@@ -4,6 +4,7 @@ import { CategoryController } from './category.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { SubCategoryModule } from '../sub_category/sub_category.module';
+import { CategoryTranslation } from '../category-translation/entities/category-translation.entity';
 
 @Module({
     exports: [
@@ -15,6 +16,6 @@ import { SubCategoryModule } from '../sub_category/sub_category.module';
     controllers: [
         CategoryController
     ],
-    imports: [TypeOrmModule.forFeature([Category]), SubCategoryModule]
+    imports: [TypeOrmModule.forFeature([Category, CategoryTranslation]), SubCategoryModule]
 })
 export class CategoryModule {}

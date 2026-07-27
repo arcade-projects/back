@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RoomService } from './room.service';
+import { Language } from 'src/common/decorators/language.decorator';
 
 @Controller('room')
 export class RoomController {
@@ -24,8 +25,8 @@ export class RoomController {
     }
 
     @Post()
-    async create(@Body() payload: {category_id: string, minutes: string}) {
+    async create(@Body() payload: {category_id: string, minutes: string}, @Language('en') lang: string) {
 
-        return await this.roomService.create(payload);
+        return await this.roomService.create(payload, lang);
     }
 }

@@ -5,9 +5,6 @@ export class Category {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column({ type: 'varchar', unique: true })
-    title!: string;
-
     @Column({ type: 'boolean', default: true })
     activate!: Boolean;
 
