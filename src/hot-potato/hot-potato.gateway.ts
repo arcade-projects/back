@@ -58,7 +58,7 @@ export class HotPotatoGateway {
 
       if (!roomPlayers || roomPlayers.length === 0) return;
 
-      const subCategories = await this.subCategoryService.findByCategoryId(room.category_id);
+      const subCategories = await this.subCategoryService.findNamesByLocale(room.category_id, room.locale);
       const subCategoryTitles = subCategories.map((sc: any) => sc.title || sc);
 
       state = {

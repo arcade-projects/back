@@ -37,7 +37,7 @@ import { RoomPlayerModule } from './hot-potato/setting/room-player/room-player.m
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           migrations: [__dirname + '/migrations/*{.ts,.js}'],
           autoLoadEntities: configService.get<boolean>('DATABASE_MIGRATIONS_RUN'),
-          synchronize: configService.get<boolean>('DATABASE_SYNCHRONIZE'),
+          synchronize: configService.get<string>('DATABASE_SYNCHRONIZE') === 'true',
         }),
     }),
     RoomPlayerModule,

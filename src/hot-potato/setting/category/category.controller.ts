@@ -1,13 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
+import { Language } from 'src/common/decorators/language.decorator';
 
-@Controller('category')
+@Controller('categories')
 export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
 
+
     @Get()
-    async findMany() {
-        return this.categoryService.findMany();
+    async findByLocale(@Language('en') lang: string) {
+        return await this.categoryService.findByLocale(lang);
     }
 
     @Get(':id')
@@ -16,9 +18,11 @@ export class CategoryController {
     }
 
     @Post()
-    async create(@Body() data: any) {
-        await this.categoryService.create(data);
-        return this.categoryService.findMany();
+    async create(
+        @Body() body: { categories: { locale: string; name: string }[] },
+        @Language('en') lang: string
+    ) {
+        return await this.categoryService.create(body.categories, lang);
     }
 
     @Put(':id')
@@ -27,8 +31,10 @@ export class CategoryController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string) {
-        await this.categoryService.delete(id);
-        return this.categoryService.findMany();
+    async deleteTranslationByLocale(
+        @Param('id') id: string,
+        @Language('en') lang: string
+    ) {
+       return await this.categoryService.deleteTranslationByLocale(id, lang);
     }
 }

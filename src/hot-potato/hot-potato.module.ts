@@ -7,10 +7,19 @@ import { SubCategoryModule } from './setting/sub_category/sub_category.module';
 import { RoomController } from './setting/room/room.controller';
 import { RoomModule } from './setting/room/room.module';
 import { RoomPlayerModule } from './setting/room-player/room-player.module';
+import { CategoryTranslationModule } from './setting/category-translation/category-translation.module';
+import { SubCategoryTranslationModule } from './setting/sub-category-translation/sub-category-translation.module';
 
 @Module({
   providers: [HotPotatoService, HotPotatoGateway],
   controllers: [CategoryController, RoomController],
-  imports: [CategoryModule, SubCategoryModule, RoomModule, RoomPlayerModule]
+  imports: [
+    CategoryModule,
+    CategoryTranslationModule,
+    SubCategoryModule, 
+    SubCategoryTranslationModule,
+    RoomModule, 
+    RoomPlayerModule
+  ]
 })
 export class HotPotatoModule {}

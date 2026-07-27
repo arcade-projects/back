@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { SubCategoryService } from './sub_category.service';
+import { Language } from 'src/common/decorators/language.decorator';
 
-@Controller('category/:category_id/sub-category')
+@Controller('categories/:category_id/sub-categories')
 export class SubCategoryController {
 
     constructor(
@@ -9,8 +10,11 @@ export class SubCategoryController {
     ) {}
 
     @Get()
-    findMany(@Param('category_id') categoryId: string) {
-        return this.subCategoryService.findMany(categoryId);
+    async findMany(
+        @Param('category_id') categoryId: string, 
+        @Language('en') lang: string
+    ) {
+        return await this.subCategoryService.findByLocale(categoryId, lang);
     }
 
     @Get(':id')
@@ -19,19 +23,20 @@ export class SubCategoryController {
     }
 
     @Post()
-    async create(@Body() data: any) {
-        await this.subCategoryService.create(data);
-        return this.subCategoryService.findMany(data.category_id);
+    async create(
+        @Body() body: { category_id: string; translations: { locale: string; name: string }[] },
+        @Language('en') lang: string
+    ) {
+        return await this.subCategoryService.create(body, lang);
     }
 
     update() {}
 
     @Delete(':sub_category_id')
     async delete(
-        @Param('category_id') categoryId: string,
-        @Param('sub_category_id') subCategoryId: string
+        @Param('sub_category_id') subCategoryId: string,
+        @Language('en') lang: string,
     ) {
-        await this.subCategoryService.delete(subCategoryId);
-        return this.subCategoryService.findMany(categoryId);
+        return await this.subCategoryService.deleteTranslationByLocale(subCategoryId, lang);
     }
 }
