@@ -1,0 +1,5 @@
+{
+  "SUCCESS": "Toiminto suoritettu onnistuneesti",
+  "USER_NOT_FOUND": "Käyttäjää ei löytynyt",
+  "ROOM_FULL": "Huone on täynnä"
+}

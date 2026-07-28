@@ -1,0 +1,5 @@
+{
+  "SUCCESS": "Operation completed successfully",
+  "USER_NOT_FOUND": "User not found",
+  "ROOM_FULL": "Room is full"
+}
