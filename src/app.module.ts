@@ -9,9 +9,23 @@ import { CategoryModule } from './hot-potato/setting/category/category.module';
 import { SubCategoryModule } from './hot-potato/setting/sub_category/sub_category.module';
 import { RoomModule } from './hot-potato/setting/room/room.module';
 import { RoomPlayerModule } from './hot-potato/setting/room-player/room-player.module';
+import { HeaderResolver, CookieResolver, I18nModule, AcceptLanguageResolver } from 'nestjs-i18n';
+import path from 'path';
 
 @Module({
   imports: [
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n/'),
+        watch: true,
+      },
+      resolvers: [
+        new CookieResolver(['lang', 'NEXT_LOCALE']),
+        new HeaderResolver(['x-customer-lang']),
+        new AcceptLanguageResolver(),
+      ]
+    }),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
