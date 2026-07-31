@@ -7,10 +7,6 @@
     "assets": [
       {
         "include": "i18n/**/*",
-        "outDir": "dist/src"
-      },
-      {
-        "include": "i18n/**/*",
         "outDir": "dist"
       }
     ]
