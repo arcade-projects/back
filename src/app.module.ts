@@ -17,6 +17,9 @@ import path from 'path';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',
@@ -42,9 +45,6 @@ import path from 'path';
         new HeaderResolver(['x-customer-lang']),
         new AcceptLanguageResolver(),
       ]
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
