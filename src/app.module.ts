@@ -34,8 +34,8 @@ import path from 'path';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(__dirname, 'i18n'),
-        watch: true,
+        path: path.join(process.cwd(), 'dist', 'i18n'),
+        watch: process.env.NODE_ENV !== 'production',
       },
       resolvers: [
         new CookieResolver(['lang', 'NEXT_LOCALE']),
