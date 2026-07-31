@@ -1,7 +1,17 @@
+process.env.REDIS_HOST = process.env.REDIS_HOST || 'redis';
+process.env.REDIS_PORT = process.env.REDIS_PORT || '6379';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { useContainer } from 'class-validator';
 import { VersioningType } from '@nestjs/common';
+
+process.on('unhandledRejection', (reason: any) => {
+  if (reason?.message?.includes('ECONNREFUSED') || reason?.name === 'MaxRetriesPerRequestError') {
+    return;
+  }
+  console.error('Unhandled Rejection:', reason);
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

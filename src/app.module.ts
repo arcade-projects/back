@@ -3,17 +3,34 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RedisModule } from '@nestjs-modules/ioredis';
 import { HotPotatoModule } from './hot-potato/hot-potato.module';
 import { CategoryModule } from './hot-potato/setting/category/category.module';
 import { SubCategoryModule } from './hot-potato/setting/sub_category/sub_category.module';
 import { RoomModule } from './hot-potato/setting/room/room.module';
 import { RoomPlayerModule } from './hot-potato/setting/room-player/room-player.module';
 import { HeaderResolver, CookieResolver, I18nModule, AcceptLanguageResolver } from 'nestjs-i18n';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './redis/redis.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 import path from 'path';
 
 @Module({
   imports: [
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_PASS,
+        }
+      },
+      defaults: {
+        from: `"Arcade" <${process.env.GMAIL_USER}>`
+      }
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
@@ -26,17 +43,8 @@ import path from 'path';
         new AcceptLanguageResolver(),
       ]
     }),
-    RedisModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'single',
-        url: configService.get('REDIS_URL'),
-      }),
-      inject: [ConfigService],
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -59,6 +67,9 @@ import path from 'path';
     CategoryModule,
     SubCategoryModule,
     HotPotatoModule,
+    UserModule,
+    AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
