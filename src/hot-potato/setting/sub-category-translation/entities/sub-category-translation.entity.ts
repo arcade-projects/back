@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'sub_category_translations' })
 @Unique(['sub_category_id', 'locale'])
@@ -15,4 +15,13 @@ export class SubCategoryTranslation {
 
     @Column({ type: 'varchar' , length: 255 })
     name!: string;
+
+    @Column({ type: 'boolean', default: true })
+    activate!: Boolean;
+
+    @CreateDateColumn()
+    created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
 }

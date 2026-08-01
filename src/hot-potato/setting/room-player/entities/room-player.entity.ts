@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity({ name: 'room_player' })
+@Entity({ name: 'room_players' })
 export class RoomPlayer {
 
     @PrimaryGeneratedColumn('uuid')
@@ -9,6 +9,11 @@ export class RoomPlayer {
     @Column({ type: 'varchar' })
     room_id!: string;
 
+    @Column({ nullable: true })
+    user_id!: string;
+
+    @Column({ default: false })
+    is_owner!: boolean;
 
     @Column({ type: 'varchar' })
     player_name!: string;
@@ -17,8 +22,8 @@ export class RoomPlayer {
     activate!: Boolean;
 
     @CreateDateColumn()
-    createdAt!: Date;
+    created_at!: Date;
 
     @UpdateDateColumn()
-    updatedAt!: Date;
+    updated_at!: Date;
 }
