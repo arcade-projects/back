@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Request } from "express";
-import { Strategy, ExtractJwt } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
 
@@ -34,9 +34,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     async validate(payload: any) {
         const user = await this.userRepository.findOne({ where: { id: payload.sub } });
+        
         if (!user || !user.activate) {
-        throw new UnauthorizedException('User not found or inactive');
+            throw new UnauthorizedException('User not found or inactive');
         }
+        
         return user;
     }
 }

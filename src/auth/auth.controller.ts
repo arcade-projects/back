@@ -1,6 +1,7 @@
-import { Body, Controller, Post, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, Res, HttpCode, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -23,12 +24,14 @@ export class AuthController {
     const token = await this.authService.verifyOtp(email, otp);
 
     response.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: isProduction ? '.dequizma.com' : undefined,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    domain: process.env.NODE_ENV === 'production'
+        ? '.dequizma.com'
+        : undefined,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/',
     });
 
     return {
