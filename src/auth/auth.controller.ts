@@ -19,12 +19,14 @@ export class AuthController {
     @Body('otp') otp: string,
     @Res({ passthrough: true }) response: Response,
   ) {
+    const isProduction = process.env.NODE_ENV === 'production';
     const token = await this.authService.verifyOtp(email, otp);
 
     response.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      domain: isProduction ? '.dequizma.com' : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
