@@ -1,42 +1,57 @@
 import { Body, Controller, Post, Res, HttpCode, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {}
 
-  @Post('send-otp')
-  @HttpCode(HttpStatus.OK)
-  async sendOtp(@Body('email') email: string) {
-    return this.authService.sendOtp(email);
-  }
+    @Post('send-otp')
+    @HttpCode(HttpStatus.OK)
+    async sendOtp(@Body('email') email: string) {
+        return this.authService.sendOtp(email);
+    }
 
-  @Post('verify-otp')
-  @HttpCode(HttpStatus.OK)
-  async verifyOtp(
+    @Post('verify-otp')
+    @HttpCode(HttpStatus.OK)
+    async verifyOtp(
     @Body('email') email: string, 
     @Body('otp') otp: string,
     @Res({ passthrough: true }) response: Response,
-  ) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const token = await this.authService.verifyOtp(email, otp);
+    ) {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const token = await this.authService.verifyOtp(email, otp);
 
-    response.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    domain: process.env.NODE_ENV === 'production'
-        ? '.dequizma.com'
-        : undefined,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: '/',
-    });
+        response.cookie('token', token, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'lax',
+            domain: isProduction ? '.dequizma.com': undefined,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/',
+        });
 
-    return {
-      user: { email },
-      message: 'login successful',
-    };
-  }
+        return {
+            user: { email },
+            message: 'login successful',
+        };
+    }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    logout(@Res({ passthrough: true }) response: Response) {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        response.clearCookie('token', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'lax',
+            domain: isProduction ? '.dequizma.com' : undefined,
+            path: '/',
+        });
+
+        return {
+            message: 'logout successful',
+        };
+    }
 }
