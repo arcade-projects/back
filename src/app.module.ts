@@ -13,6 +13,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { OtpService } from './otp/otp.service';
+import { OtpModule } from './otp/otp.module';
 import path from 'path';
 
 @Module({
@@ -70,8 +72,9 @@ import path from 'path';
     UserModule,
     AuthModule,
     RedisModule,
+    OtpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OtpService],
 })
 export class AppModule {}

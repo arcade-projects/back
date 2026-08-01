@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-
 enum RoomStatus {
     WAITING = 'waiting',
     PLAYING = 'playing',
@@ -32,8 +31,8 @@ export class Room {
     activate!: Boolean;
 
     @CreateDateColumn()
-    createdAt!: Date;
+    created_at!: Date;
 
     @UpdateDateColumn()
-    updatedAt!: Date;
+    updated_at!: Date;
 }

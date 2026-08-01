@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import type { Response } from 'express';
 
+// @UseGuards(JwtAuthGuard)
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -17,17 +18,20 @@ export class AuthController {
         @Body() dto: VerifyOtpDto,
         @Res({ passthrough: true }) res: Response        
     ) {
+        const token = await this.authService.verifyOtp(dto.email, dto.otp);
 
-        const result = await this.authService.verifyOtp(dto.email, dto.otp);
+        const isProduction = process.env.NODE_ENV === 'production';
 
-        res.cookie('token', result.accessToken, {
+        res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            domain: '.dequizma.com',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+            domain: isProduction ? '.dequizma.com' : undefined,
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-
-        return this.authService.verifyOtp(dto.email, dto.otp);
+        
+        return { 
+            message: 'ورود با موفقیت انجام شد',
+        };
     }
 }

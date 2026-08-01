@@ -42,17 +42,13 @@ export class AuthService {
 
         let user = await this.userRepository.findOne({ where: { email } });
         if (!user) {
-            user = this.userRepository.create({ email, is_verified: true });
+            user = this.userRepository.create({ email, email_verified: true });
             await this.userRepository.save(user);
         }
 
         const payload = { sub: user.id, email: user.email };
         const accessToken = this.jwstService.sign(payload);
 
-        return { 
-            accessToken,
-            user: { id: user.id, email: user.email },
-            message: 'ورود با موفقیت انجام شد',
-         };
+        return accessToken;
     }
 }
