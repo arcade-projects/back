@@ -55,20 +55,27 @@ export class SubCategoryService extends BaseService {
         }));
     }
 
-    async findNamesByLocale(categoryId: string, locale: string,) {
-        const { names } = await this.subCategoryRepository
-        .createQueryBuilder('sub')
-        .innerJoin(
-            SubCategoryTranslation,
-            'sct',
-            'sct.sub_category_id = sub.id AND sct.locale = :locale',
-            { locale }
-        )
-        .select("ARRAY_AGG(sct.name)", "names")
-        .where('sub.category_id = :categoryId', { categoryId })
-        .getRawOne();
+    async findNamesByLocale(categoryIds: string[], locale: string) {
+        if (!categoryIds || categoryIds.length === 0) {
+            return [];
+        }
 
-        return names;
+        const results = await this.subCategoryRepository
+            .createQueryBuilder('sub')
+            .innerJoin(
+                SubCategoryTranslation,
+                'sct',
+                'sct.sub_category_id = sub.id AND sct.locale = :locale',
+                { locale }
+            )
+            .select('sct.name', 'name')
+            .where('sub.category_id IN (:...categoryIds)', { categoryIds })
+            .andWhere('sub.activate = :activate', { activate: true })
+            .andWhere('sct.activate = :activate', { activate: true })
+            .orderBy('RANDOM()')
+            .getRawMany();
+
+        return results.map(row => row.name);
     }
 
     async findById(id: string) {

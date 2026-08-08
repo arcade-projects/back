@@ -15,6 +15,7 @@ import { RedisModule } from './redis/redis.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import path from 'path';
 import { OtpModule } from './otp/otp.module';
+import { RoomCategoryModule } from './hot-potato/setting/room-category/room-category.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { OtpModule } from './otp/otp.module';
           synchronize: configService.get<string>('DATABASE_SYNCHRONIZE') === 'true',
         }),
     }),
+    RoomCategoryModule,
     RoomPlayerModule,
     RoomModule,
     CategoryModule,

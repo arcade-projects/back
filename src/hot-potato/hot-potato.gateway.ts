@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import { SubCategoryService } from './setting/sub_category/sub_category.service';
 import { RoomService } from './setting/room/room.service';
 import { RoomPlayerService } from './setting/room-player/room-player.service';
+import { RoomCategoryService } from './setting/room-category/room-category.service';
 
 interface RoomState {
   room: any;
@@ -27,7 +28,8 @@ export class HotPotatoGateway {
   constructor(
     private readonly subCategoryService: SubCategoryService,
     private readonly roomService: RoomService,
-    private readonly roomPlayerService: RoomPlayerService
+    private readonly roomPlayerService: RoomPlayerService,
+    private readonly roomCategoryService: RoomCategoryService
   ) {}
 
   @WebSocketServer()
@@ -51,6 +53,8 @@ export class HotPotatoGateway {
     let state = this.roomsState.get(roomId);
 
     const roomPlayers = await this.roomPlayerService.findByRoomId(roomId);
+    const roomCategories = await this.roomCategoryService.findByRoomId(roomId);
+    const categoryIds = roomCategories.map(rc => rc.category_id);
 
     if (!state) {
       const room = await this.roomService.findById(roomId);
@@ -58,7 +62,9 @@ export class HotPotatoGateway {
 
       if (!roomPlayers || roomPlayers.length === 0) return;
 
-      const subCategories = await this.subCategoryService.findNamesByLocale(room.category_id, room.locale);
+      const subCategories = await this.subCategoryService.findNamesByLocale(categoryIds, room.locale);
+
+      console.log(subCategories);
       const subCategoryTitles = subCategories.map((sc: any) => sc.title || sc);
 
       state = {

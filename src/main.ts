@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { useContainer } from 'class-validator';
 import { VersioningType } from '@nestjs/common';
+import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 
 process.on('unhandledRejection', (reason: any) => {
   if (reason?.message?.includes('ECONNREFUSED') || reason?.name === 'MaxRetriesPerRequestError') {
@@ -22,6 +23,9 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  app.useGlobalPipes(new I18nValidationPipe());
+  app.useGlobalFilters(new I18nValidationExceptionFilter());
 
   const allowedOrigins = [
     process.env.ORIGIN_PROD,

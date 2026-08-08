@@ -1,5 +1,5 @@
 {
-  "SUCCESS": "Operation completed successfully",
-  "USER_NOT_FOUND": "User not found",
-  "ROOM_FULL": "Room is full"
+  "IS_UUID": "The {property} must be a valid UUID",
+  "NOT_EMPTY": "The {property} cannot be empty",
+  "IS_BOOLEAN": "The {property} must be a boolean"
 }

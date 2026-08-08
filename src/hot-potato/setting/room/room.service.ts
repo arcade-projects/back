@@ -33,7 +33,6 @@ export class RoomService {
     create(payload: any, local: string) {
         const room = this.roomRepository.create({
             minutes: payload.minutes,
-            category_id: payload.category_id,
             pincode: Math.floor(100000 + Math.random() * 900000).toString(),
             locale: local
         });

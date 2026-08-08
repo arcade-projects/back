@@ -1,5 +1,5 @@
 {
-  "SUCCESS": "عملیات با موفقیت انجام شد",
-  "USER_NOT_FOUND": "کاربر یافت نشد",
-  "ROOM_FULL": "ظرفیت اتاق تکمیل است"
+  "IS_UUID": "شناسه {property} باید یک UUID معتبر باشد",
+  "NOT_EMPTY": "فیلد {property} نمی‌تواند خالی باشد",
+  "IS_BOOLEAN": "مقدار {property} باید بولین باشد"
 }
