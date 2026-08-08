@@ -9,6 +9,7 @@ import { RoomModule } from './setting/room/room.module';
 import { RoomPlayerModule } from './setting/room-player/room-player.module';
 import { CategoryTranslationModule } from './setting/category-translation/category-translation.module';
 import { SubCategoryTranslationModule } from './setting/sub-category-translation/sub-category-translation.module';
+import { RoomCategoryModule } from './setting/room-category/room-category.module';
 
 @Module({
   providers: [HotPotatoService, HotPotatoGateway],
@@ -19,7 +20,8 @@ import { SubCategoryTranslationModule } from './setting/sub-category-translation
     SubCategoryModule, 
     SubCategoryTranslationModule,
     RoomModule, 
-    RoomPlayerModule
+    RoomPlayerModule, 
+    RoomCategoryModule
   ]
 })
 export class HotPotatoModule {}

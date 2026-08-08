@@ -1,12 +1,14 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { Language } from 'src/common/decorators/language.decorator';
+import { RoomCategoryService } from '../room-category/room-category.service';
 
 @Controller('room')
 export class RoomController {
 
     constructor(
-        private readonly roomService: RoomService
+        private readonly roomService: RoomService,
+        private readonly roomCategoryService: RoomCategoryService
     ) {}
 
     @Get()
@@ -25,8 +27,17 @@ export class RoomController {
     }
 
     @Post()
-    async create(@Body() payload: {category_id: string, minutes: string}, @Language('en') lang: string) {
+    async create(@Body() payload: {category_ids: string[], minutes: string}, @Language('en') lang: string) {
 
-        return await this.roomService.create(payload, lang);
+        const room = await this.roomService.create(payload, lang);
+
+        await this.roomCategoryService.create({ 
+            room_id: room.id, 
+            category_ids: payload.category_ids, 
+        });
+
+        return {
+            'pincode': room.pincode
+        };
     }
 }

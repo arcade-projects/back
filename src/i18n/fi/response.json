@@ -1,5 +1,5 @@
 {
-  "SUCCESS": "Toiminto suoritettu onnistuneesti",
-  "USER_NOT_FOUND": "Käyttäjää ei löytynyt",
-  "ROOM_FULL": "Huone on täynnä"
+  "IS_UUID": "Kentän {property} on oltava kelvollinen UUID",
+  "NOT_EMPTY": "Kenttä {property} ei voi olla tyhjä",
+  "IS_BOOLEAN": "Kentän {property} on oltava booleana-arvo"
 }

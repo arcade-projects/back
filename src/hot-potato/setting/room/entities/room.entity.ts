@@ -15,9 +15,6 @@ export class Room {
     @Column({ type: 'varchar', unique: true })
     pincode!: string;
 
-    @Column()
-    category_id!: string;
-
     @Column({ type: 'int', default: 60 })
     minutes!: number;
 
